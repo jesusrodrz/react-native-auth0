@@ -1,10 +1,12 @@
-import { deepEqual } from "../utils/deepEqual";
+import {deepEqual} from '../utils/deepEqual';
 
 /**
  * @ignore
  */
 const reducer = (state, action) => {
   switch (action.type) {
+    case 'START_LOADING':
+      return {...state, isLoading: true};
     case 'LOGIN_COMPLETE':
       return {...state, error: null, user: action.user};
 
@@ -18,7 +20,7 @@ const reducer = (state, action) => {
       return {...state, isLoading: false, user: action.user};
 
     case 'SET_USER':
-      if(deepEqual(state.user, action.user)) {
+      if (deepEqual(state.user, action.user)) {
         return state;
       }
       return {...state, user: action.user};

@@ -40,12 +40,15 @@ const getIdTokenProfileClaims = idToken => {
  *   <App />
  * </Auth0Provider>
  */
-const Auth0Provider = ({domain, clientId, children}) => {
-  const [client] = useState(() => new Auth0({domain, clientId}));
+const Auth0Provider = ({domain, clientId, children, client}) => {
+  const [client] = useState(
+    client ? client : () => new Auth0({domain, clientId}),
+  );
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
     (async () => {
+      dispatch({type: 'START_LOADING'});
       let user = null;
 
       if (await client.credentialsManager.hasValidCredentials()) {
@@ -66,6 +69,7 @@ const Auth0Provider = ({domain, clientId, children}) => {
   const authorize = useCallback(
     async (...options) => {
       try {
+        dispatch({type: 'START_LOADING'});
         const params = options.length ? options[0] : {};
         const opts = options.length > 1 ? options[1] : {};
         const specifiedScopes =
@@ -107,8 +111,10 @@ const Auth0Provider = ({domain, clientId, children}) => {
   const getCredentials = useCallback(
     async (...options) => {
       try {
-        const credentials = await client.credentialsManager.getCredentials(...options);
-        if(credentials.idToken) {
+        const credentials = await client.credentialsManager.getCredentials(
+          ...options,
+        );
+        if (credentials.idToken) {
           const user = getIdTokenProfileClaims(credentials.idToken);
           dispatch({type: 'SET_USER', user});
         }
